@@ -12,6 +12,42 @@ from tqdm import tqdm
 # DATASETS
 ########################
 
+def dialo(root_path, manifest_file, **kwargs):
+    """Assumes each line as ```<filename>|<transcription>|<speaker_id>```
+    """
+    txt_file = os.path.join(root_path, manifest_file)
+    items = []
+    with open(txt_file, "r", encoding="utf-8") as ttf:
+        for line in ttf:
+            try:
+                cols = line.strip().split("|")
+                wav_file = os.path.join(root_path, cols[0])
+                text = cols[1]
+                speaker_name = cols[2]
+                if cols[0] != "filename":
+                    items.append({"text":text, "audio_file":wav_file, "speaker_name":speaker_name, "root_path": root_path})
+            except:
+                print(line)
+    return items
+
+
+def dialo_csv(root_path, manifest_file, **kwargs):
+    import csv
+    txt_file = os.path.join(root_path, manifest_file)
+    items = []
+    with open(txt_file, "r", encoding="utf-8") as ttf:
+        reader = csv.reader(ttf)
+        next(reader)
+        for line in reader:
+            try:
+                wav_file, text, speaker_name = line
+                audio_file = os.path.join(root_path, wav_file)
+                items.append({"text":text, "audio_file":audio_file, "speaker_name":speaker_name, "root_path": root_path})
+            except:
+                print(line)
+                raise
+    return items
+
 
 def cml_tts(root_path, meta_file, ignored_speakers=None):
     """Normalizes the CML-TTS meta data file to TTS format
